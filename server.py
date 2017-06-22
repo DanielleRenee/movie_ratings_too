@@ -2,7 +2,7 @@
 
 from jinja2 import StrictUndefined
 
-from flask import Flask, render_template, redirect, request, flash, session, jsonify
+from flask import Flask, render_template, redirect, request, flash, session, jsonify, make_response
 from flask_debugtoolbar import DebugToolbarExtension
 
 from model import User, Rating, Movie, connect_to_db, db
@@ -25,14 +25,18 @@ def index():
     # a = jsonify([1,3])
     # return a
 
+    flash(session)
+
     return render_template("homepage.html")
+
 
 @app.route("/users")
 def user_list():
     """Show list of all users."""
 
     users = User.query.all()
-    return render_template("user_list.html", users=users)
+    return render_template("users_list.html", users=users)
+
 
 @app.route("/register", methods=["GET"])
 def register_form():
@@ -40,38 +44,74 @@ def register_form():
 
     return render_template("register_form.html")
 
+
 @app.route("/register", methods=["POST"])
 def register_process():
 
     email = request.form.get("email")
     password = request.form.get("password")
 
-
-    if User.query.filter_by(email=email).all():
+    if User.query.filter_by(email=email).first():
         #work on notifying user
         flash("User e-mail already exists. Please choose a new e-mail.")
     else:
-        sql = """INSERT INTO users (email, password)
-                 VALUES (:email, :password)
-              """
 
-        db.session.execute(sql,
-                            {'email': email,
-                            'password': password})
+        user = User(email=email, password=password)
 
-        db.session.commit()                       
+        db.session.add(user)
+        db.session.commit()     
+
+        # sql = """INSERT INTO users (email, password)
+        #          VALUES (:email, :password)
+        #       """
+
+        # db.session.execute(sql,
+        #                     {'email': email,
+        #                     'password': password})
+
 
     return redirect("/")
+
 
 @app.route("/login", methods=["GET"])
 def login_form():
 
     return render_template("login.html")
 
+
 @app.route("/login", methods=["POST"])
 def login_process():
 
     email = request.form.get("email")
+    password = request.form.get("password")
+
+    user = User.query.filter_by(email=email, password=password).first() 
+
+    if user:
+        session['current user'] = email
+        flash("You are logged in.")
+        return redirect("/")
+
+    else:
+        flash("Invalid login!")
+        return render_template("login.html")
+        
+
+@app.route("/logout")
+def logout_process():
+
+    if 'current user' in session:
+        del session['current user']
+    flash("You are logged out.")
+
+    return redirect("/")
+
+
+# @app.route("/logout")
+# def logout():
+
+#     return render_template("homepage.html",
+#                             logout=logout_process)
 
 
 
