@@ -40,6 +40,7 @@ def user_list():
 
 @app.route("/register", methods=["GET"])
 def register_form():
+    """Show users registration form."""
 
 
     return render_template("register_form.html")
@@ -47,6 +48,7 @@ def register_form():
 
 @app.route("/register", methods=["POST"])
 def register_process():
+    """Register new user."""
 
     email = request.form.get("email")
     password = request.form.get("password")
@@ -75,13 +77,16 @@ def register_process():
 
 @app.route("/login", methods=["GET"])
 def login_form():
+    """Show user login form."""
 
     return render_template("login.html")
 
 
 @app.route("/login", methods=["POST"])
 def login_process():
+    """Login user."""
 
+   
     email = request.form.get("email")
     password = request.form.get("password")
 
@@ -90,7 +95,7 @@ def login_process():
     if user:
         session['current user'] = email
         flash("You are logged in.")
-        return redirect("/")
+        return redirect("/users/<>")
 
     else:
         flash("Invalid login!")
@@ -99,6 +104,7 @@ def login_process():
 
 @app.route("/logout")
 def logout_process():
+    """Logout user."""
 
     if 'current user' in session:
         del session['current user']
@@ -107,12 +113,15 @@ def logout_process():
     return redirect("/")
 
 
-# @app.route("/logout")
-# def logout():
+# <users.user_id>
 
-#     return render_template("homepage.html",
-#                             logout=logout_process)
+@app.route("/users/<username>")
+def user_details(username):
+    """Show user info."""
 
+    user = User.query.get(username)
+    
+    return render_template("user_info.html", user=user)
 
 
 if __name__ == "__main__":
