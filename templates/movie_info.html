@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+    <h2>Movie Info</h2>
+
+      Movie Title: {{ movie.title }}
+
+      <br>
+      <a href="/{{ movie.movie_id }}/add_rating">Rate this movie.</a>
+
+
+
+    <ul>
+      
+      <li>
+      {% for rating in movie.ratings %}  
+        Rating: {{ rating.score }}<br>
+      {% endfor %}
+     
+      </li>
+
+    
+    </ul>
+
+{% endblock %}

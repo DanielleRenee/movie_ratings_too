@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+
+  <form action="/{{ movie.movie_id }}/add_rating", method="POST">
+    Input a number from 1 to 5: <input type="number", name="rating"><br><br>
+
+    <input type="submit", value="Submit">
+  </form>
+
+{% endblock %}

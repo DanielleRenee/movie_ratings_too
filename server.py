@@ -30,14 +30,6 @@ def index():
     return render_template("homepage.html")
 
 
-@app.route("/users")
-def user_list():
-    """Show list of all users."""
-
-    users = User.query.all()
-    return render_template("users_list.html", users=users)
-
-
 @app.route("/register", methods=["GET"])
 def register_form():
     """Show users registration form."""
@@ -54,7 +46,7 @@ def register_process():
     password = request.form.get("password")
 
     if User.query.filter_by(email=email).first():
-        #work on notifying user
+
         flash("User e-mail already exists. Please choose a new e-mail.")
     else:
 
@@ -86,16 +78,17 @@ def login_form():
 def login_process():
     """Login user."""
 
-   
+
     email = request.form.get("email")
     password = request.form.get("password")
 
-    user = User.query.filter_by(email=email, password=password).first() 
+    user = User.query.filter_by(email=email, password=password).first()
 
     if user:
         session['current user'] = email
         flash("You are logged in.")
-        return redirect("/users/<>")
+        return redirect("/users/{}".format(user.user_id))
+
 
     else:
         flash("Invalid login!")
@@ -113,16 +106,62 @@ def logout_process():
     return redirect("/")
 
 
-# <users.user_id>
+@app.route("/users")
+def user_list():
+    """Show list of all users."""
+
+    users = User.query.all()
+    return render_template("users_list.html", users=users)
+
 
 @app.route("/users/<username>")
-def user_details(username):
+def user_info(username):
     """Show user info."""
 
     user = User.query.get(username)
     
     return render_template("user_info.html", user=user)
 
+
+@app.route("/movies")
+def movie_list():
+    """Show list of all movies."""
+
+    movies = Movie.query.order_by("title").all()
+
+    return render_template("movies_list.html", movies=movies)
+
+
+@app.route("/movies/<movie_id>")
+def movie_info(movie_id):
+    """Show movie info."""
+
+    movie = Movie.query.get(movie_id)
+
+    return render_template("movie_info.html", movie=movie)
+
+
+
+@app.route("/<movie_id>/add_rating", methods=["GET"])
+def rating_form(movie_id):
+    """Show movie rating form."""
+
+
+    return render_template("add_rating.html")
+
+
+@app.route("/<movie_id>/add_rating", methods=["POST"])
+def rating_process(movie_id):
+    """Allows user to add a new rating."""
+
+    rating = request.form.get("rating")
+
+    # WIP: Need to finish
+
+
+    return render_template("/{}/add_rating".format(movie_id))
+
+     
 
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the
